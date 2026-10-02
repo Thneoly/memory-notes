@@ -1,0 +1,78 @@
+let notes = []
+let remember_status = "Remember sends a note to this app's assistant."
+
+fn load(){
+    if fs.exists("notes.json") {
+        let v = fs.read("notes.json").parse_json()
+        if v != nil { notes = v }
+    }
+    ui.list.render()
+}
+
+fn save(){ fs.write("notes.json", notes.to_json()) }
+
+fn add(){
+    let text = ui.entry.text()
+    if text == "" { return }
+    notes.push(text)
+    ui.entry.set_text("")
+    save()
+    ui.list.render()
+}
+
+fn remove(i){
+    let kept = []
+    for j in notes.len() { if j != i { kept.push(notes[j]) } }
+    notes = kept
+    save()
+    ui.list.render()
+}
+
+fn remember(text){
+    remember_status = "Sending…"
+    ui.status.set_text(remember_status)
+    host.request("octos.turn.start", {text: "Remember: " + text}, fn(r){
+        if r.is_ok {
+            remember_status = "Remembered ✓"
+        } else {
+            remember_status = "No assistant on this device — the note itself is kept here."
+        }
+        ui.status.set_text(remember_status)
+    })
+}
+
+start_timeout(0.05, || load())
+
+let ink = #x1c1c1e
+let secondary = #x8e8e93
+let blue = #x007aff
+let SmallButton = ButtonFlat{height: 28 padding: Inset{left: 10 right: 10}
+    draw_bg +: {border_radius: 14.0 color: blue color_hover: #x0a84ff color_down: #x0062cc border_size: 0.0}
+    draw_text +: {color: #xffffff color_hover: #xffffff color_down: #xffffff}}
+SolidView{width: Fill height: Fill flow: Down padding: 16 spacing: 12 draw_bg.color: #xffffff
+    Label{text: "Memory Notes" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 28}}
+    View{width: Fill height: Fit flow: Right spacing: 8 align: Align{y: 0.5}
+        entry := TextInput{width: Fill height: 40 empty_text: "Write a note"
+            draw_bg +: {color: #xf2f2f7 color_hover: #xf2f2f7 color_focus: #xf2f2f7 color_empty: #xf2f2f7 border_radius: 10.0}
+            draw_text +: {color: ink color_hover: ink color_focus: ink color_empty: secondary color_empty_hover: secondary}}
+        ButtonFlat{text: "Add" height: 40 padding: Inset{left: 18 right: 18} on_click: || add()
+            draw_bg +: {border_radius: 20.0 color: blue color_hover: #x0a84ff color_down: #x0062cc border_size: 0.0}
+            draw_text +: {color: #xffffff color_hover: #xffffff color_down: #xffffff}}
+    }
+    list := ScrollYView{width: Fill height: Fill flow: Down spacing: 8 on_render: || {
+        if notes.len() == 0 {
+            Label{text: "No notes yet." draw_text.color: secondary}
+        }
+        for i in notes.len() {
+            let j = notes.len() - 1 - i
+            View{width: Fill height: Fit flow: Right spacing: 8 align: Align{y: 0.5} padding: 8
+                Label{width: Fill text: notes[j] draw_text.color: ink draw_text.text_style.font_size: 15}
+                SmallButton{text: "Remember" on_click: || remember(notes[j])}
+                SmallButton{text: "×" on_click: || remove(j)}
+            }
+            Hr{}
+        }
+    }}
+    status := Label{width: Fill text: remember_status draw_text.color: secondary draw_text.text_style.font_size: 12}
+    Label{text: "Notes stay on this device; Remember also tells this app's assistant." draw_text.color: secondary draw_text.text_style.font_size: 12}
+}

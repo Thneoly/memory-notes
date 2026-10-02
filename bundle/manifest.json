@@ -1,0 +1,16 @@
+{
+  "agent": {
+    "profile": "read-only"
+  },
+  "capabilities": [
+    "storage",
+    "octos.turn.start"
+  ],
+  "id": "memory-notes",
+  "integrity": {
+    "bundle_blake3": "303539937041fa8b4a55389d2f2a7cace691a74a54efd804a24b9c289dc73339"
+  },
+  "name": "Memory Notes",
+  "schema": 1,
+  "version": "0.1.0"
+}
