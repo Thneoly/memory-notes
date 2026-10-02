@@ -8,9 +8,9 @@
   "icon": "assets/icon.svg",
   "platforms": ["windows"],
   "publisher": {
-    "name": "Replace with your publisher name",
-    "support": "https://example.com/support",
-    "privacy_policy_url": "https://example.com/privacy"
+    "name": "Thneoly",
+    "support": "https://github.com/Thneoly/memory-notes/issues",
+    "privacy_policy_url": "https://github.com/Thneoly/memory-notes/PRIVACY.md"
   },
   "release_notes": "First version: local notes, Remember to the app's assistant with honest degradation.",
   "age_rating": "all",
