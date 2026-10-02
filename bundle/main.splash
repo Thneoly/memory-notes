@@ -29,13 +29,13 @@ fn remove(i){
 }
 
 fn remember(text){
-    remember_status = "Sending…"
+    remember_status = "Asking the assistant to remember: " + text
     ui.status.set_text(remember_status)
     host.request("octos.turn.start", {text: "Remember: " + text}, fn(r){
         if r.is_ok {
-            remember_status = "Remembered ✓"
+            remember_status = "Remembered ✓ " + text
         } else {
-            remember_status = "No assistant on this device — the note itself is kept here."
+            remember_status = "No assistant on this device — kept locally: " + text
         }
         ui.status.set_text(remember_status)
     })
