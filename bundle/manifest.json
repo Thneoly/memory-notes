@@ -15,10 +15,10 @@
   },
   "id": "memory-notes",
   "integrity": {
-    "bundle_blake3": "514f727d5e7a59568891742bcb6e3e481420326a8574f94055e1028baa9efbba",
+    "bundle_blake3": "3dae1aebc57b29ec6a8a849c96634e8cec4f2f970acfcb669715644f06fbfe68",
     "signature": {
       "key_id": "TheOne",
-      "value": "241e593ad40c234a7f1814a4ae23490384255f0895cf2a8c29e0d5b1916e841f1d50195f7ef17e8be8633cdc3ee5820bb63cbd8a920322eb4e48c48d25a54f0a"
+      "value": "8a96d1b5cfe72925baf4cc66a891d242e1c2904c2639bbe9660f3876cf2e61464f241e0b7e0734db4e5b43178d56060868355a8b6023290d55f2bbe70c02aa05"
     }
   },
   "name": "Memory Notes",
