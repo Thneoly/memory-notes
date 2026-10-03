@@ -3,6 +3,8 @@
 > **OctoSense 黑客松参赛项目 · 商店应用赛道**
 > 演示"每条便签都可被你的助手记住"的交互模型。
 
+> ℹ️ **本仓库是被动 bundle**——`bundle/main.splash` 是纯脚本 + 数据；不安装 hook / 不触发浏览器跳转 / 不发起任何 HTTP 调用。你看到 `vscode.dev/github/...` 这类链接是被你本地 IDE / GitHub 扩展 / 浏览器插件打开的，不是本仓库干的。
+
 ---
 
 ## 一句话
@@ -22,8 +24,8 @@
    │memory-notes│  本仓
    │  （写端）   │   ↑ 每条便签独立按钮
    │   ┌──┐    │   ↓ host.request("octos.turn.start", ...)
-   │   │记│  → │     │ 失败 → "kept locally: <text>"
-   │   │住│  → │     │ 成功 → "Remembered ✅ <text>"
+   │   │记│  → │     │ 失败 → "Kept locally ✅"
+   │   │住│  → │     │ 成功 → "Remembered ✅"
    │   └──┘     │
         ↓
        peer ─────→ os.memory (主作品) 汇聚
@@ -65,12 +67,12 @@ memory-notes 0.1.0 — PASSED
 
 - 状态变量 `remember_status`（非 const，遵循"模板先例"——不发明 `const` 语法）
 - `remember(text)` 函数：
-  1. 立即 `remember_status = "Asking the assistant to remember: " + text`
+  1. 立即 `remember_status = "Asking…"`（同时 `ui.list.render()` 强制重建 ScrollYView 的 widget tree，规避宿主回调后按钮 repaint 丢失 — 见 `build/REVIEW-ANSWERS.md` § 7 / F-21）
   2. 异步 `host.request("octos.turn.start", {text: "Remember: " + text}, fn(r){...})`
-  3. 回调成功：`remember_status = "Remembered ✅ " + text`
-  4. 回调失败：`remember_status = "No assistant on this device — kept locally: " + text`
+  3. 回调成功：`remember_status = "Remembered ✅"`
+  4. 回调失败：`remember_status = "Kept locally ✅"`（便签仍在 `notes.json`，AI 失败不丢数据）
 - 持久化：`notes.json` 数组，`add`/`remove` 即时 `save`
-- UI：顶部 TextInput + 中部 ScrollYView 列表（每行 Remember + ×）+ 底部 hint
+- UI：顶部 TextInput + 中部 ScrollYView 列表（每行 Remember + ×）+ 底部状态行 + 灰色 hint
 
 ---
 
@@ -81,6 +83,7 @@ memory-notes 0.1.0 — PASSED
 - **A3.1 诚实降级是核心 UX**——AI 失败必须有本地降级路径，便签绝不能因 AI 不可用而坏 UI
 - **A1.2 不发明 API**——`const` 没有模板先例就换掉；不猜未文档化字段
 - **A1.4 可见窗口演示**——用户屏幕直接看，3 仓并排
+- **F-21 ScrollYView repaint**——宿主回调后 ScrollYView 内 ButtonFlat 不重画。修法：`remember()` 内先调 `ui.list.render()`，让 ScrollYView 在异步回调前进入稳定 widget tree。已修，重截 03 截图确认 Remember 按钮可见。
 
 ---
 
@@ -88,7 +91,9 @@ memory-notes 0.1.0 — PASSED
 
 ### 截图
 
-- `bundle/screenshots/01-main.png` — 主屏
+- `bundle/screenshots/01-main.png` — 主屏（空列表）
+- `bundle/screenshots/02-list-with-note.png` — 加了一条便签，Remember + × 双按钮可见
+- `bundle/screenshots/03-remember-kept-locally.png` — 点 Remember 后（card-host 无 `octos.*` → 状态 "Kept locally ✅"；按钮 repaint 已修，见 § 关键决策 / F-21）
 - `build/demo-notes.png` — 本地演示快照
 
 ### 复现命令
@@ -111,8 +116,8 @@ python ../OctoScript-App-Design-Flow/tools/octo shot 8141 bundle/screenshots/01-
 
 1. 输入 "Wash the car on Saturday" → Enter
 2. 点新便签的 **Remember**
-3. 状态行变化：`Asking → ✅ Remembered`（成功）或 `Asking → kept locally`（降级）
-4. 关掉 card-host → 再点 → 确认"kept locally"路径生效
+3. 状态行变化：`Asking… → Remembered ✅`（成功）或 `Asking… → Kept locally ✅`（降级，便签仍在 `notes.json`）
+4. 关掉 card-host → 再点 → 确认"Kept locally ✅"路径生效
 
 ---
 
@@ -149,8 +154,10 @@ memory-notes/
 ## 提交前 TODO
 
 见 [`docs/JOINT-DEMO.md` § 6](../os-memory/docs/JOINT-DEMO.md)。本仓特异：
-- [ ] 生成 Packet（review.json + 7 问 REVIEW-ANSWERS.md）
+- [x] 生成 Packet（`build/review.json` + `build/REVIEW-ANSWERS.md`）
 - [x] publisher 占位替换（Thneoly）
+- [x] F-21 修复（2026-10-03 重截 03 截图，Remember 按钮可见）
+- [ ] 生成 publisher key（ed25519）+ sign-manifest（人类步骤）
 
 ---
 

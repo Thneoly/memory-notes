@@ -1,5 +1,5 @@
 let notes = []
-let remember_status = "Remember sends a note to this app's assistant."
+let remember_status = "Tap Remember to also tell the assistant."
 
 fn load(){
     if fs.exists("notes.json") {
@@ -29,13 +29,14 @@ fn remove(i){
 }
 
 fn remember(text){
-    remember_status = "Asking the assistant to remember: " + text
+    remember_status = "Asking…"
     ui.status.set_text(remember_status)
+    ui.list.render()
     host.request("octos.turn.start", {text: "Remember: " + text}, fn(r){
         if r.is_ok {
-            remember_status = "Remembered ✅ " + text
+            remember_status = "Remembered ✅"
         } else {
-            remember_status = "No assistant on this device — kept locally: " + text
+            remember_status = "Kept locally ✅"
         }
         ui.status.set_text(remember_status)
     })
@@ -46,9 +47,6 @@ start_timeout(0.05, || load())
 let ink = #x1c1c1e
 let secondary = #x8e8e93
 let blue = #x007aff
-let SmallButton = ButtonFlat{height: 28 padding: Inset{left: 10 right: 10}
-    draw_bg +: {border_radius: 14.0 color: blue color_hover: #x0a84ff color_down: #x0062cc border_size: 0.0}
-    draw_text +: {color: #xffffff color_hover: #xffffff color_down: #xffffff}}
 SolidView{width: Fill height: Fill flow: Down padding: 16 spacing: 12 draw_bg.color: #xffffff
     Label{text: "Memory Notes" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 28}}
     View{width: Fill height: Fit flow: Right spacing: 8 align: Align{y: 0.5}
@@ -65,10 +63,15 @@ SolidView{width: Fill height: Fill flow: Down padding: 16 spacing: 12 draw_bg.co
         }
         for i in notes.len() {
             let j = notes.len() - 1 - i
+            let row_text = notes[j]
             View{width: Fill height: Fit flow: Right spacing: 8 align: Align{y: 0.5} padding: 8
-                Label{width: Fill text: notes[j] draw_text.color: ink draw_text.text_style.font_size: 15}
-                SmallButton{text: "Remember" on_click: || remember(notes[j])}
-                SmallButton{text: "×" on_click: || remove(j)}
+                Label{width: Fill text: row_text draw_text.color: ink draw_text.text_style.font_size: 15}
+                ButtonFlat{text: "Remember" height: 28 padding: Inset{left: 10 right: 10} on_click: || remember(row_text)
+                    draw_bg +: {border_radius: 14.0 color: blue color_hover: #x0a84ff color_down: #x0062cc border_size: 0.0}
+                    draw_text +: {color: #xffffff color_hover: #xffffff color_down: #xffffff}}
+                ButtonFlat{text: "×" height: 28 padding: Inset{left: 10 right: 10} on_click: || remove(j)
+                    draw_bg +: {border_radius: 14.0 color: #x8e8e93 color_hover: #x75757b color_down: #x5e5e63 border_size: 0.0}
+                    draw_text +: {color: #xffffff color_hover: #xffffff color_down: #xffffff}}
             }
             Hr{}
         }
