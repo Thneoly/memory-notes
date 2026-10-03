@@ -164,6 +164,7 @@ memory-notes/
 ## 参考
 
 - 联合演示：[`docs/JOINT-DEMO.md`](../os-memory/docs/JOINT-DEMO.md)
+- App Hub 提交包（复制粘贴用）：[`docs/SUBMISSION.md`](../os-memory/docs/SUBMISSION.md)
 - 比赛规则：[App Hub docs/PUBLISHING.md](https://github.com/OctoSense-org/OctoSense-App-Hub/blob/main/docs/PUBLISHING.md)
 
 ---
