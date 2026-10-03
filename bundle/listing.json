@@ -4,7 +4,11 @@
   "description": "A quick notes app: type a note, keep it on the device, tap Remember to also tell this app's own assistant. The note list works fully without an assistant; Remember explains honestly when the host has none.",
   "category": "productivity",
   "keywords": ["notes", "memory", "assistant"],
-  "screenshots": ["screenshots/01-main.png"],
+  "screenshots": [
+    "screenshots/01-main.png",
+    "screenshots/02-list-with-note.png",
+    "screenshots/03-remember-kept-locally.png"
+  ],
   "icon": "assets/icon.svg",
   "platforms": ["windows"],
   "publisher": {
