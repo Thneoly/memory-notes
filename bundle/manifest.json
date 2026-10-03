@@ -1,16 +1,33 @@
 {
   "agent": {
-    "profile": "read-only"
+    "max_iterations": null,
+    "profile": "read-only",
+    "token_budget": null,
+    "tools": []
   },
   "capabilities": [
     "storage",
     "octos.turn.start"
   ],
+  "compute": {
+    "instruction_budget": null,
+    "memory_bytes": null
+  },
   "id": "memory-notes",
   "integrity": {
-    "bundle_blake3": "514f727d5e7a59568891742bcb6e3e481420326a8574f94055e1028baa9efbba"
+    "bundle_blake3": "514f727d5e7a59568891742bcb6e3e481420326a8574f94055e1028baa9efbba",
+    "signature": {
+      "key_id": "TheOne",
+      "value": "241e593ad40c234a7f1814a4ae23490384255f0895cf2a8c29e0d5b1916e841f1d50195f7ef17e8be8633cdc3ee5820bb63cbd8a920322eb4e48c48d25a54f0a"
+    }
   },
   "name": "Memory Notes",
+  "network": {
+    "hosts": []
+  },
   "schema": 1,
+  "storage": {
+    "max_bytes": null
+  },
   "version": "0.1.0"
 }
