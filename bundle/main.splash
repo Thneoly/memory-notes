@@ -1,44 +1,78 @@
-let notes = []
-let remember_status = "Tap Remember to also tell the assistant."
+let items = []
+let service_ok = false
+let busy = false
+let status_text = "Loading…"
 
 fn load(){
-    if fs.exists("notes.json") {
-        let v = fs.read("notes.json").parse_json()
-        if v != nil { notes = v }
-    }
-    ui.list.render()
+    busy = true
+    status_text = "Loading…"
+    ui.status.set_text(status_text)
+    host.request("octos.session.history", {}, fn(r){
+        busy = false
+        if r.is_ok {
+            items = []
+            for i in r.data.messages.len() {
+                let m = r.data.messages[i]
+                if m.role != nil {
+                    if ("" + m.role) == "user" {
+                        let raw = ""
+                        if m.text != nil { raw = "" + m.text }
+                        let rest = raw.strip_prefix("Remember: ")
+                        if rest != nil {
+                            items.push({key: "" + i, text: "" + rest})
+                        }
+                    }
+                }
+            }
+            service_ok = true
+            if items.len() == 0 {
+                status_text = "Nothing remembered yet."
+            } else {
+                status_text = "" + items.len() + " remembered by your assistant"
+            }
+        } else {
+            service_ok = false
+            status_text = "Assistant unavailable on this device"
+        }
+        ui.status.set_text(status_text)
+        ui.list.render()
+    })
 }
 
-fn save(){ fs.write("notes.json", notes.to_json()) }
-
-fn add(){
+fn remember(){
+    if busy { return }
     let text = ui.entry.text()
     if text == "" { return }
-    notes.push(text)
+    busy = true
     ui.entry.set_text("")
-    save()
-    ui.list.render()
-}
-
-fn remove(i){
-    let kept = []
-    for j in notes.len() { if j != i { kept.push(notes[j]) } }
-    notes = kept
-    save()
-    ui.list.render()
-}
-
-fn remember(text){
-    remember_status = "Asking…"
-    ui.status.set_text(remember_status)
-    ui.list.render()
+    status_text = "Sending…"
+    ui.status.set_text(status_text)
     host.request("octos.turn.start", {text: "Remember: " + text}, fn(r){
+        busy = false
         if r.is_ok {
-            remember_status = "Remembered ✅"
+            status_text = "Sent ✅"
+            load()
         } else {
-            remember_status = "Kept locally ✅"
+            status_text = "Assistant unavailable"
         }
-        ui.status.set_text(remember_status)
+        ui.status.set_text(status_text)
+    })
+}
+
+fn forget(text){
+    if busy { return }
+    busy = true
+    status_text = "Asking assistant to forget…"
+    ui.status.set_text(status_text)
+    host.request("octos.turn.start", {text: "Forget this note: " + text}, fn(r){
+        busy = false
+        if r.is_ok {
+            status_text = "Removed ✅"
+            load()
+        } else {
+            status_text = "Assistant unavailable"
+        }
+        ui.status.set_text(status_text)
     })
 }
 
@@ -54,39 +88,44 @@ let card = #xffffff
 SolidView{width: Fill height: Fill flow: Down padding: 16 spacing: 12 draw_bg.color: bg
     View{width: Fill height: Fit flow: Down spacing: 2
         Label{text: "📝  Memory Notes" draw_text.color: ink draw_text.text_style: theme.font_bold{font_size: 26}}
-        Label{text: "Notes that teach your assistant." draw_text.color: secondary draw_text.text_style.font_size: 13}
+        Label{text: "Teach your assistant. One memory at a time." draw_text.color: secondary draw_text.text_style.font_size: 13}
     }
     View{width: Fill height: Fit flow: Right spacing: 8 align: Align{y: 0.5}
-        entry := TextInput{width: Fill height: 44 empty_text: "Write a note"
+        entry := TextInput{width: Fill height: 44 empty_text: "What should it remember?"
             draw_bg +: {color: #xffffff color_hover: #xffffff color_focus: accent_bg color_empty: #xffffff border_radius: 12.0}
             draw_text +: {color: ink color_hover: ink color_focus: ink color_empty: secondary color_empty_hover: secondary}}
-        ButtonFlat{text: "Add" height: 44 padding: Inset{left: 20 right: 20} on_click: || add()
+        ButtonFlat{text: "Remember" height: 44 padding: Inset{left: 18 right: 18} on_click: || remember()
             draw_bg +: {border_radius: 22.0 color: accent color_hover: accent_dark color_down: #x3735a0 border_size: 0.0}
             draw_text +: {color: #xffffff color_hover: #xffffff color_down: #xffffff}}
     }
     list := ScrollYView{width: Fill height: Fill flow: Down spacing: 10 on_render: || {
-        if notes.len() == 0 {
+        if service_ok == false {
             SolidView{width: Fill height: Fit flow: Down padding: Inset{top: 22 bottom: 22 left: 18 right: 18} align: Align{x: 0.5 y: 0.5} draw_bg.color: card
-                Label{text: "No notes yet" draw_text.color: secondary draw_text.text_style.font_size: 14}
-                Label{text: "Write something above and tap Add." draw_text.color: secondary draw_text.text_style.font_size: 11}
+                Label{text: "Assistant unavailable" draw_text.color: ink draw_text.text_style.font_size: 14}
+                Label{text: "This app reads and writes through the device's assistant. Open it in Rinx or an OctoSense shell to test." draw_text.color: secondary draw_text.text_style.font_size: 11}
             }
         }
-        for i in notes.len() {
-            let j = notes.len() - 1 - i
-            let row_text = notes[j]
-            SolidView{width: Fill height: Fit flow: Right spacing: 10 align: Align{y: 0.5} padding: Inset{top: 12 bottom: 12 left: 14 right: 10} draw_bg.color: card
-                Label{width: Fill text: row_text draw_text.color: ink draw_text.text_style.font_size: 15}
-                ButtonFlat{text: "Remember" height: 30 padding: Inset{left: 12 right: 12} on_click: || remember(row_text)
-                    draw_bg +: {border_radius: 15.0 color: accent_bg color_hover: #xddd9fa color_down: #xc7c2f5 border_size: 0.0}
-                    draw_text +: {color: accent color_hover: accent_dark color_down: accent_dark}}
-                ButtonFlat{text: "×" height: 30 padding: Inset{left: 10 right: 10} on_click: || remove(j)
-                    draw_bg +: {border_radius: 15.0 color: #xffffff color_hover: #xf2f2f7 color_down: #xe5e5ea border_size: 0.0}
-                    draw_text +: {color: secondary color_hover: ink color_down: ink}}
+        if service_ok == true {
+            if items.len() == 0 {
+                SolidView{width: Fill height: Fit flow: Down padding: Inset{top: 22 bottom: 22 left: 18 right: 18} align: Align{x: 0.5 y: 0.5} draw_bg.color: card
+                    Label{text: "Nothing remembered yet" draw_text.color: ink draw_text.text_style.font_size: 14}
+                    Label{text: "Type above and tap Remember to teach your assistant." draw_text.color: secondary draw_text.text_style.font_size: 11}
+                }
+            }
+            for i in items.len() {
+                let j = items.len() - 1 - i
+                let item = items[j]
+                SolidView{width: Fill height: Fit flow: Right spacing: 8 align: Align{y: 0.5} padding: Inset{top: 12 bottom: 12 left: 14 right: 8} draw_bg.color: card
+                    Label{width: Fill text: item.text draw_text.color: ink draw_text.text_style.font_size: 15}
+                    ButtonFlat{text: "Forget" height: 30 padding: Inset{left: 12 right: 12} on_click: || forget(item.text)
+                        draw_bg +: {border_radius: 15.0 color: accent_bg color_hover: #xddd9fa color_down: #xc7c2f5 border_size: 0.0}
+                        draw_text +: {color: accent color_hover: accent_dark color_down: accent_dark}}
+                }
             }
         }
     }}
     RoundedView{width: Fit height: Fit flow: Right padding: Inset{top: 6 bottom: 6 left: 12 right: 12} draw_bg.color: accent_bg border_radius: 10.0
-        status := Label{text: remember_status draw_text.color: accent draw_text.text_style.font_size: 12}
+        status := Label{text: status_text draw_text.color: accent draw_text.text_style.font_size: 12}
     }
-    Label{text: "Notes stay on this device; Remember also tells this app's assistant." draw_text.color: secondary draw_text.text_style.font_size: 12}
+    Label{text: "Notes live in your assistant's memory. Memory Digest reads the same memory." draw_text.color: secondary draw_text.text_style.font_size: 12}
 }

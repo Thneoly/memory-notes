@@ -6,8 +6,8 @@
     "tools": []
   },
   "capabilities": [
-    "storage",
-    "octos.turn.start"
+    "octos.turn.start",
+    "octos.session.history"
   ],
   "compute": {
     "instruction_budget": null,
@@ -15,10 +15,10 @@
   },
   "id": "memory-notes",
   "integrity": {
-    "bundle_blake3": "3dae1aebc57b29ec6a8a849c96634e8cec4f2f970acfcb669715644f06fbfe68",
+    "bundle_blake3": "9d038befec34f3f5b3dfa16081ec506330e9248b9e45a64f8f45296ba3863a8b",
     "signature": {
       "key_id": "TheOne",
-      "value": "8a96d1b5cfe72925baf4cc66a891d242e1c2904c2639bbe9660f3876cf2e61464f241e0b7e0734db4e5b43178d56060868355a8b6023290d55f2bbe70c02aa05"
+      "value": "85532e32e8068755e3685ed772a5fb42e5471a54f6806f8684f6c47b1c0410082c9164147a85e81bfa3981fd9f451c7aa470fb2a281368415d08b37895b07d02"
     }
   },
   "name": "Memory Notes",

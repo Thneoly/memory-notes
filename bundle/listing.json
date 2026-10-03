@@ -1,13 +1,11 @@
 {
   "schema": 1,
-  "subtitle": "Notes that can teach your assistant",
-  "description": "A quick notes app: type a note, keep it on the device, tap Remember to also tell this app's own assistant. The note list works fully without an assistant; Remember explains honestly when the host has none.",
+  "subtitle": "Teach your assistant, one memory at a time",
+  "description": "Type a note, tap Remember, and your device's assistant stores it. The list comes from the assistant's memory via octos.session.history; nothing is kept on the device. Without an assistant service the app shows 'Assistant unavailable' and does nothing else. The writer half of a Notes + Digest pair that share one assistant memory.",
   "category": "productivity",
   "keywords": ["notes", "memory", "assistant"],
   "screenshots": [
-    "screenshots/01-main.png",
-    "screenshots/02-list-with-note.png",
-    "screenshots/03-remember-kept-locally.png"
+    "screenshots/01-main.png"
   ],
   "icon": "assets/icon.svg",
   "platforms": ["windows"],
@@ -16,7 +14,7 @@
     "support": "https://github.com/Thneoly/memory-notes/issues",
     "privacy_policy_url": "https://github.com/Thneoly/memory-notes/PRIVACY.md"
   },
-  "release_notes": "First version: local notes, Remember to the app's assistant with honest degradation.",
+  "release_notes": "Second version: no local cache. The assistant is the source of truth; 'Assistant unavailable' is the only state on devices without an octos service (today: every OctoSense shell, every card-host).",
   "age_rating": "all",
   "license": "Apache-2.0"
 }
