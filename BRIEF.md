@@ -16,9 +16,10 @@ the Remember action degrades honestly.
 - **Add / remove notes** — local, in `notes.json` (template behavior).
 - **Remember** — a small button on each note row: sends
   `host.request("octos.turn.start", {text: "Remember: <note>"})` to this
-  app's own agent. On success the status line reads "Remembered ✓"; when
-  the host has no assistant (card-host) it shows the honest one-liner and
-  the local note list is unaffected.
+  app's own agent. On success the status line reads "Remembered ✅
+  \<text\>"; when the host has no assistant (card-host) it shows the
+  honest one-liner (`No assistant on this device — kept locally: \<text\>`)
+  and the local note list is unaffected.
 
 ## Data
 
@@ -27,8 +28,9 @@ the Remember action degrades honestly.
 ## States
 
 - Empty list, populated list, restart persistence (notes.json).
-- Remember with no assistant: status line "No assistant on this device —
-  the note itself is kept here." Everything else keeps working.
+- Remember with no assistant: status line reads `No assistant on this
+  device — kept locally: \<the note that was tapped\>`. The local
+  note itself is unaffected; only the assistant hop is skipped.
 
 ## Hosts
 

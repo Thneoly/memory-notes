@@ -7,9 +7,9 @@
 
 ## 一句话
 
-`Memory Notes` 是一个便签应用，**每条便签**都有一个独立的 **Remember** 按钮。点一下 → 走 `octos.turn.start` 让助手记住这条；失败 → 便签**行记下来**——本地永远可用，AI 是渐进增强层。
+`Memory Notes` 是一个便签应用，**每条便签**都有一个独立的 **Remember** 按钮。点一下 → 走 `octos.turn.start` 让助手记住这条；失败 → 便签**仍记下来**——本地永远可用，AI 是渐进增强层。
 
-> 📘 完整方案与三仓联合演示见 [`docs/JOINT-DEMO.md`](docs/JOINT-DEMO.md)（路径：../os-memory/docs/JOINT-DEMO.md）
+> 📘 完整方案与三仓联合演示见 [`docs/JOINT-DEMO.md`](../os-memory/docs/JOINT-DEMO.md)
 
 ---
 
@@ -47,7 +47,7 @@
 | 版本 | `0.1.0` |
 | 命名空间 | 商店应用（自有 id） |
 | 提交路径 | `octo check` + `hub check --publisher-key` |
-| 资源上限 | 16 MiB storage · 16,777,216 bytes |
+| 资源上限 | 16 MiB storage（16,777,216 bytes）|
 | Agent profile | `read-only` |
 | Capabilities | `storage` + `octos.turn.start` |
 | Platforms | `windows`（其他平台未验证，**不假装**） |
@@ -59,9 +59,7 @@ $ python ../OctoScript-App-Design-Flow/tools/octo check bundle
 memory-notes 0.1.0 — PASSED
 ```
 
-警告：
-- `publisher-signature: unsigned`（首次可不上签）
-- `listing.json still holds template placeholders`（评审者注意！）
+警告：bundle 当前 `integrity.signature: null`（首次发布可 unsigned —— 上架流程由人来决定）。
 
 ### 关键源码（`bundle/main.splash` · 摘要）
 
@@ -72,7 +70,7 @@ memory-notes 0.1.0 — PASSED
   3. 回调成功：`remember_status = "Remembered ✅ " + text`
   4. 回调失败：`remember_status = "No assistant on this device — kept locally: " + text`
 - 持久化：`notes.json` 数组，`add`/`remove` 即时 `save`
-- UI：顶部 TextInput + 中部 ScrollYView 列表（每行 Remember + 🗑）+ 底部 hint
+- UI：顶部 TextInput + 中部 ScrollYView 列表（每行 Remember + ×）+ 底部 hint
 
 ---
 
@@ -114,16 +112,16 @@ python ../OctoScript-App-Design-Flow/tools/octo shot 8141 bundle/screenshots/01-
 1. 输入 "Wash the car on Saturday" → Enter
 2. 点新便签的 **Remember**
 3. 状态行变化：`Asking → ✅ Remembered`（成功）或 `Asking → kept locally`（降级）
-5. 关掉 card-host → 再点 → 确认"kept locally"路径生效
+4. 关掉 card-host → 再点 → 确认"kept locally"路径生效
 
 ---
 
 ## 已知边界
 
 - **Windows only** — `platforms: ["windows"]`
-- **未签名** — `publisher-signature: unsigned`（首次可）
+- **未签名** — `integrity.signature: null`（首次可 unsigned）
 - **未转 public** — 赛前必转 public
-- **bundle/manifest.json 未提交** — `octo check` 内部 stamp 重算，内容已一致，赛前需要 `git add bundle/manifest.json`
+- **manifest stamp 已 ready** — `octo check` 重算后已 add & commit（赛后运行会重新生成）
 
 ---
 
@@ -136,8 +134,8 @@ memory-notes/
 ├── AGENTS.md            ← 跨 agent 开发说明
 ├── CLAUDE.md / GEMINI.md ← @AGENTS.md 转发
 ├── bundle/
-│   ├── manifest.json    ← stamp manifest（**未提交版本**待赛前 add）
-│   ├── listing.json     ← store 元数据（publisher 占位待替换）
+│   ├── manifest.json    ← stamp manifest
+│   ├── listing.json     ← store 元数据（publisher: Thneoly）
 │   ├── main.splash      ← 主程序
 │   ├── screenshots/01-main.png
 │   └── assets/icon.svg
@@ -151,9 +149,8 @@ memory-notes/
 ## 提交前 TODO
 
 见 [`docs/JOINT-DEMO.md` § 6](../os-memory/docs/JOINT-DEMO.md)。本仓特异：
-- [ ] git add `bundle/manifest.json`（stamp 已重算）
 - [ ] 生成 Packet（review.json + 7 问 REVIEW-ANSWERS.md）
-- [ ] publisher 占位替换
+- [x] publisher 占位替换（Thneoly）
 
 ---
 

@@ -33,7 +33,7 @@ fn remember(text){
     ui.status.set_text(remember_status)
     host.request("octos.turn.start", {text: "Remember: " + text}, fn(r){
         if r.is_ok {
-            remember_status = "Remembered ✓ " + text
+            remember_status = "Remembered ✅ " + text
         } else {
             remember_status = "No assistant on this device — kept locally: " + text
         }
